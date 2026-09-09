@@ -27,6 +27,23 @@ app.use(morgan('dev'));
 // Connect to MongoDB Atlas
 connectDB();
 
+// Root Welcome & Health Route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    app: 'FetchMart E-Commerce API',
+    database: getDbStatus() ? 'MongoDB Atlas Connected' : 'In-Memory Resilient Mode',
+    endpoints: {
+      health: '/api/health',
+      products: '/api/products',
+      auth: '/api/auth',
+      orders: '/api/orders',
+      contact: '/api/contact',
+      newsletter: '/api/newsletter'
+    }
+  });
+});
+
 // API Health Check
 app.get('/api/health', (req, res) => {
   res.json({
