@@ -15,6 +15,7 @@ import {
 import { useCart } from '../context/CartContext';
 import { useWishlist } from '../context/WishlistContext';
 import { useAuth } from '../context/AuthContext';
+import { API_BASE_URL } from '../config/api.js';
 
 export const Navbar = ({ onSelectCategory, onSearch, onSelectProduct, onOpenTracking, onOpenContact }) => {
   const { totalItemCount, setIsCartOpen } = useCart();
@@ -44,7 +45,7 @@ export const Navbar = ({ onSelectCategory, onSearch, onSelectProduct, onOpenTrac
     setIsSearching(true);
     const debounce = setTimeout(async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/products?search=${encodeURIComponent(searchTerm)}&limit=5`);
+        const res = await fetch(`${API_BASE_URL}/products?search=${encodeURIComponent(searchTerm)}&limit=5`);
         if (res.ok) {
           const data = await res.json();
           setSearchResults(data.data || []);

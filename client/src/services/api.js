@@ -1,13 +1,7 @@
 import { CURATED_PRODUCTS } from '../data/curatedProducts.js';
+import { API_BASE_URL } from '../config/api.js';
 
-const getBackendUrl = () => {
-  if (typeof window !== 'undefined' && window.location && window.location.hostname) {
-    return `http://${window.location.hostname}:5000/api`;
-  }
-  return 'http://localhost:5000/api';
-};
-
-const BACKEND_URL = getBackendUrl();
+const BACKEND_URL = API_BASE_URL;
 const DUMMY_JSON_API = 'https://dummyjson.com/products?limit=0';
 
 // Initial 4 popular products

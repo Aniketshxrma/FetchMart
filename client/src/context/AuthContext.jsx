@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
+import { API_BASE_URL } from '../config/api.js';
 
 const AuthContext = createContext();
 
@@ -36,7 +37,7 @@ export const AuthProvider = ({ children }) => {
     if (!user || (!user.id && !user._id && !user.email)) return;
     const identifier = user._id || user.id || user.email;
     try {
-      const res = await fetch(`http://localhost:5000/api/auth/profile/${encodeURIComponent(identifier)}`);
+      const res = await fetch(`${API_BASE_URL}/auth/profile/${encodeURIComponent(identifier)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {
@@ -53,7 +54,7 @@ export const AuthProvider = ({ children }) => {
     if (!user || !user.email) return;
     setIsLoadingOrders(true);
     try {
-      const res = await fetch(`http://localhost:5000/api/orders/user/${encodeURIComponent(user.email)}`);
+      const res = await fetch(`${API_BASE_URL}/orders/user/${encodeURIComponent(user.email)}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.orders) {
@@ -77,7 +78,7 @@ export const AuthProvider = ({ children }) => {
 
   const login = async (email, password) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/login', {
+      const response = await fetch(`${API_BASE_URL}/auth/login`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email, password }),
@@ -100,7 +101,7 @@ export const AuthProvider = ({ children }) => {
 
   const register = async ({ name, email, password, phone, dateOfBirth, gender }) => {
     try {
-      const response = await fetch('http://localhost:5000/api/auth/register', {
+      const response = await fetch(`${API_BASE_URL}/auth/register`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ name, email, password, phone, dateOfBirth, gender }),
@@ -125,7 +126,7 @@ export const AuthProvider = ({ children }) => {
     if (!user) return { success: false };
     const userId = user._id || user.id;
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/profile/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/profile/${userId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(updatedFields),
@@ -149,7 +150,7 @@ export const AuthProvider = ({ children }) => {
     if (!user) return { success: false };
     const userId = user._id || user.id;
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/address/${userId}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/address/${userId}`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(addressData),
@@ -173,7 +174,7 @@ export const AuthProvider = ({ children }) => {
     if (!user) return { success: false };
     const userId = user._id || user.id;
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/address/${userId}/${addressId}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/address/${userId}/${addressId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(addressData),
@@ -197,7 +198,7 @@ export const AuthProvider = ({ children }) => {
     if (!user) return { success: false };
     const userId = user._id || user.id;
     try {
-      const response = await fetch(`http://localhost:5000/api/auth/address/${userId}/${addressId}`, {
+      const response = await fetch(`${API_BASE_URL}/auth/address/${userId}/${addressId}`, {
         method: 'DELETE',
       });
       const data = await response.json();

@@ -1,47 +1,33 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { useToast } from './ToastContext';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../config/api.js';
 
 const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const { user, setIsAuthModalOpen, setAuthMode } = useAuth();
-  const userKey = user ? `fetchmart_cart_${user.email || user.id}` : 'fetchmart_cart_guest';
+  const { addToast } = useToast();
 
-  const [cartItems, setCartItems] = useState(() => {
-    try {
-      const activeUser = localStorage.getItem('fetchmart_active_user');
-      const parsedUser = activeUser ? JSON.parse(activeUser) : null;
-      if (!parsedUser) return [];
-      const key = `fetchmart_cart_${parsedUser.email || parsedUser.id}`;
-      const saved = localStorage.getItem(key);
-      if (saved) return JSON.parse(saved);
-      if (parsedUser && parsedUser.cart && parsedUser.cart.length > 0) return parsedUser.cart;
-      return [];
-    } catch {
-      return [];
-    }
-  });
+  const userKey = user?.email ? `fetchmart_cart_${user.email}` : 'fetchmart_cart_guest';
 
+  // Load cart from MongoDB / localStorage
+  const [cartItems, setCartItems] = useState([]);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
-  const { addToast } = useToast();
 
-  // Switch cart when logged in user changes
+  // Sync cart when user changes
   useEffect(() => {
-    if (user) {
-      const userStorageKey = `fetchmart_cart_${user.email || user.id || user._id}`;
-      const saved = localStorage.getItem(userStorageKey);
-      if (saved) {
-        setCartItems(JSON.parse(saved));
-      } else if (user.cart && user.cart.length > 0) {
-        setCartItems(user.cart);
-      } else {
+    if (user && user.cart && Array.isArray(user.cart) && user.cart.length > 0) {
+      setCartItems(user.cart);
+    } else {
+      try {
+        const saved = localStorage.getItem(userKey);
+        setCartItems(saved ? JSON.parse(saved) : []);
+      } catch {
         setCartItems([]);
       }
-    } else {
-      setCartItems([]);
     }
   }, [user?.email, user?._id, user?.id]);
 
@@ -54,7 +40,7 @@ export const CartProvider = ({ children }) => {
       // Sync to MongoDB
       if (user && (user._id || user.id)) {
         const userId = user._id || user.id;
-        fetch(`http://localhost:5000/api/auth/sync-cart/${userId}`, {
+        fetch(`${API_BASE_URL}/auth/sync-cart/${userId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ cart: cartItems }),

@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import { useToast } from './ToastContext';
 import { useCart } from './CartContext';
 import { useAuth } from './AuthContext';
+import { API_BASE_URL } from '../config/api.js';
 
 const WishlistContext = createContext();
 
@@ -53,7 +54,7 @@ export const WishlistProvider = ({ children }) => {
 
       if (user && (user._id || user.id)) {
         const userId = user._id || user.id;
-        fetch(`http://localhost:5000/api/auth/sync-wishlist/${userId}`, {
+        fetch(`${API_BASE_URL}/auth/sync-wishlist/${userId}`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({ wishlist: wishlistItems }),
