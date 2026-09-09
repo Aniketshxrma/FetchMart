@@ -1,0 +1,12 @@
+{
+  "name": "fetchmart-root",
+  "version": "1.0.0",
+  "description": "FetchMart Fullstack E-Commerce Application",
+  "scripts": {
+    "client": "npm run dev --prefix client",
+    "server": "npm run dev --prefix server",
+    "install:all": "npm install --prefix client && npm install --prefix server",
+    "seed": "npm run seed --prefix server",
+    "build": "npm run build --prefix client"
+  }
+}
