@@ -4,7 +4,7 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import morgan from 'morgan';
-import { connectDB, getDbStatus } from './config/db.js';
+import { connectDB, getDbStatus, getDbError } from './config/db.js';
 import productRoutes from './routes/productRoutes.js';
 import orderRoutes from './routes/orderRoutes.js';
 import contactRoutes from './routes/contactRoutes.js';
@@ -29,10 +29,12 @@ connectDB();
 
 // Root Welcome & Health Route
 app.get('/', (req, res) => {
+  const isDbConnected = getDbStatus();
   res.json({
     status: 'online',
     app: 'FetchMart E-Commerce API',
-    database: getDbStatus() ? 'MongoDB Atlas Connected' : 'In-Memory Resilient Mode',
+    database: isDbConnected ? 'MongoDB Atlas Connected' : 'In-Memory Resilient Mode',
+    ...(isDbConnected ? {} : { dbDiagnostic: getDbError() }),
     endpoints: {
       health: '/api/health',
       products: '/api/products',
@@ -46,10 +48,12 @@ app.get('/', (req, res) => {
 
 // API Health Check
 app.get('/api/health', (req, res) => {
+  const isDbConnected = getDbStatus();
   res.json({
     status: 'online',
     app: 'FetchMart E-Commerce API',
-    database: getDbStatus() ? 'MongoDB Atlas Connected' : 'In-Memory Resilient Mode',
+    database: isDbConnected ? 'MongoDB Atlas Connected' : 'In-Memory Resilient Mode',
+    ...(isDbConnected ? {} : { dbDiagnostic: getDbError() }),
     timestamp: new Date().toISOString()
   });
 });

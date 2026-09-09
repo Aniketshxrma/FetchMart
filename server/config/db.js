@@ -6,16 +6,20 @@ import { Newsletter } from '../models/Newsletter.js';
 import { curatedCatalog } from '../data/seedData.js';
 
 // Fix Windows Node.js querySrv ECONNREFUSED issue with Atlas SRV DNS records
-try {
-  dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
-  if (typeof dns.setDefaultResultOrder === 'function') {
-    dns.setDefaultResultOrder('ipv4first');
+// (Only run on Windows locally, avoid overriding cloud container DNS on Linux/Render)
+if (process.platform === 'win32') {
+  try {
+    dns.setServers(['8.8.8.8', '8.8.4.4', '1.1.1.1']);
+    if (typeof dns.setDefaultResultOrder === 'function') {
+      dns.setDefaultResultOrder('ipv4first');
+    }
+  } catch (e) {
+    // Ignore if not permitted
   }
-} catch (e) {
-  // Ignore if not permitted
 }
 
 let isConnected = false;
+let lastDbError = null;
 
 // Auto-seed initial data to MongoDB Atlas if collections are empty
 export const autoSeedDatabase = async () => {
@@ -83,10 +87,13 @@ export const autoSeedDatabase = async () => {
 };
 
 export const connectDB = async () => {
-  const mongoURI = process.env.MONGODB_URI;
+  const rawURI = process.env.MONGODB_URI || process.env.MONGO_URI || process.env.DATABASE_URL;
+  const mongoURI = rawURI ? rawURI.trim().replace(/^['"]|['"]$/g, '') : '';
 
   if (!mongoURI || mongoURI.includes('<username>') || mongoURI.includes('<db_password>')) {
-    console.log('ℹ️  No valid MongoDB Atlas URI in .env. Running in In-Memory fallback mode.');
+    const reason = !mongoURI ? 'MONGODB_URI environment variable is missing or empty' : 'MONGODB_URI contains unreplaced placeholder values';
+    console.log(`ℹ️  ${reason}. Running in In-Memory fallback mode.`);
+    lastDbError = reason;
     return false;
   }
 
@@ -96,12 +103,14 @@ export const connectDB = async () => {
       serverSelectionTimeoutMS: 10000,
     });
     isConnected = true;
+    lastDbError = null;
     console.log(`✅ MongoDB Atlas Connected: ${conn.connection.host} (Database: ${conn.connection.name})`);
     
     // Automatically seed data if needed so database and collections appear in Atlas immediately
     await autoSeedDatabase();
     return true;
   } catch (error) {
+    lastDbError = error.message;
     console.warn(`⚠️  MongoDB Connection Warning: ${error.message}. Running in In-Memory fallback mode.`);
     isConnected = false;
     return false;
@@ -109,4 +118,6 @@ export const connectDB = async () => {
 };
 
 export const getDbStatus = () => isConnected;
+export const getDbError = () => lastDbError;
+
 
