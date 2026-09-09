@@ -21,9 +21,9 @@
 
 ## 🌐 Live Deployments
 
-- **Frontend (Vercel):** *Deploy on Vercel (`client` directory)*
-- **Backend API (Render):** [`https://fetchmart-qvg7.onrender.com`](https://fetchmart-qvg7.onrender.com)
-- **Database:** MongoDB Atlas (AWS Cloud Cluster)
+- 🚀 **Live Web Store (Frontend):** [**https://fetch-mart-one.vercel.app**](https://fetch-mart-one.vercel.app)
+- 📡 **Live API (Backend):** [**https://fetchmart-qvg7.onrender.com**](https://fetchmart-qvg7.onrender.com)
+- 🍃 **Database:** MongoDB Atlas (AWS Cloud Cluster)
 
 ---
 
